@@ -11,6 +11,8 @@ import (
 )
 
 func main() {
+  log.Println("Starting")
+
   store := make(map[string]string)
   store["failureChance"] = "0"
 
