@@ -54,12 +54,30 @@ func main() {
 			}
 		}
 
+		var traceHeaders = [...]string{
+			"x-request-id",
+			"x-b3-traceid",
+			"x-b3-spanid",
+			"x-b3-parentspanid",
+			"x-b3-sampled",
+			"x-b3-flags",
+			"x-ot-span-context",
+		}
+
 		{
 			value, present := store["request_urls"]
 			if present {
 				urls := strings.Split(value, ",")
 				for _, url := range urls {
-					response, err := http.Get(url)
+					client := &http.Client{}
+					req, _ := http.NewRequest("GET", url, nil)
+					for _, header := range traceHeaders {
+						value, headerPresent := r.Header[header]
+						if headerPresent {
+							req.Header.Set(header, value[0])
+						}
+					}
+					response, err := client.Do(req)
 					if err != nil {
 						fmt.Printf("%s", err)
 						os.Exit(1)
