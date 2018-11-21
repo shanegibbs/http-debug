@@ -5,6 +5,7 @@ WORKDIR /app
 ENV CGO_ENABLED 0
 RUN go build -o main . 
 
-FROM scratch
+FROM alpine
+RUN apk add curl
 COPY --from=build /app/main /app/main
 ENTRYPOINT ["/app/main"]
