@@ -67,13 +67,20 @@ func main() {
 		{
 			value, present := store["request_urls"]
 			if present {
+
+				lowerCaseHeader := make(http.Header)
+				for key, value := range r.Header {
+					lowerCaseHeader[strings.ToLower(key)] = value
+				}
+
 				urls := strings.Split(value, ",")
 				for _, url := range urls {
 					client := &http.Client{}
 					req, _ := http.NewRequest("GET", url, nil)
 					for _, header := range traceHeaders {
-						value, headerPresent := r.Header[header]
+						value, headerPresent := lowerCaseHeader[header]
 						if headerPresent {
+							log.Println("Found header", header)
 							req.Header.Set(header, value[0])
 						}
 					}
