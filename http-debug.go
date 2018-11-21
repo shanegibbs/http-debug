@@ -57,17 +57,20 @@ func main() {
 		{
 			value, present := store["request_urls"]
 			if present {
-				response, err := http.Get(value)
-				if err != nil {
-					fmt.Printf("%s", err)
-					os.Exit(1)
-				} else {
-					defer response.Body.Close()
-					contents, err := ioutil.ReadAll(response.Body)
+				urls := strings.Split(value, ",")
+				for _, url := range urls {
+					response, err := http.Get(url)
 					if err != nil {
-						http.Error(w, fmt.Sprintf("Failed to get url: %s\n", value), http.StatusInternalServerError)
+						fmt.Printf("%s", err)
+						os.Exit(1)
+					} else {
+						defer response.Body.Close()
+						contents, err := ioutil.ReadAll(response.Body)
+						if err != nil {
+							http.Error(w, fmt.Sprintf("Failed to get url: %s\n", url), http.StatusInternalServerError)
+						}
+						request = append(request, fmt.Sprintf("From %s:\n%s\n", url, string(contents)))
 					}
-					request = append(request, fmt.Sprintf("From %s:\n%s\n", value, string(contents)))
 				}
 			}
 		}
